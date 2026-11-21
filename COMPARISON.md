@@ -26,6 +26,16 @@ I would reconsider Keras if the team decides to retain only a simple tabular pre
 
 Overall, both frameworks meet the prediction objective, but PyTorch offers the stronger combination of measured performance, operational efficiency, and future flexibility for this scenario.
 
+## Three seed experimental Results
+
+Three-Seed Experimental Results.
+Framework	Seed	Best epoch	Validation MAE	Test MAE	Seconds
+PyTorch	42	100	3.3687	3.2212	9.69
+Keras	42	100	3.6874	3.4408	26.26
+PyTorch	43	100	3.1039	2.8687	9.17
+Keras	43	100	3.1530	3.0937	24.99
+PyTorch	44	99	3.1109	3.0534	9.87
+Keras	44	100	3.1486	3.0437	26.85
 ## Objective
 
 Implement equivalent feed-forward neural networks in PyTorch and Keras/TensorFlow and compare their behavior under the same data preparation, architectures, learning rates, and epoch budgets. A numerical equivalence test establishes that the networks compute the same function **before training**, after PyTorch parameters are copied into Keras.
