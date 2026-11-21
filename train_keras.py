@@ -1,17 +1,20 @@
-"""Train equivalent Keras bike-rental models without overwriting PyTorch reports."""
+"""Train Keras bike-rental models with callbacks and reproducible preprocessing."""
 
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import random
 from pathlib import Path
 
 import keras
+import matplotlib
 import numpy as np
 import pandas as pd
 import torch
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from bikes_data import make_rentals
 from keras_model import build_keras_model, copy_torch_weights_to_keras
@@ -20,14 +23,14 @@ from prepare import BATCH_SIZE, SEED, prepare_data
 from train import EXPERIMENTS
 
 
-def seed_everything(seed=SEED):
+def seed_everything(seed: int = SEED) -> None:
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     keras.utils.set_random_seed(seed)
 
 
-def arrays(prepared, split):
+def arrays(prepared, split: str):
     x = np.asarray(prepared[f"X_{split}"], dtype=np.float32)
     y = np.asarray(prepared[f"y_{split}"], dtype=np.float32).reshape(-1, 1)
     return x, y
@@ -39,8 +42,17 @@ def measure(model, x, y, batch_size=BATCH_SIZE):
     return float(np.mean(errors**2)), float(np.mean(np.abs(errors)))
 
 
-def train_one(config, prepared, epochs, batch_size=BATCH_SIZE):
-    seed_everything()
+def train_one(
+    config,
+    prepared,
+    epochs,
+    batch_size=BATCH_SIZE,
+    seed=SEED,
+    checkpoint_dir=None,
+    patience=20,
+):
+    """Fit once with callbacks; return best-weight model, history, best epoch."""
+    seed_everything(seed)
     x_train, y_train = arrays(prepared, "train")
     x_val, y_val = arrays(prepared, "val")
 
@@ -53,40 +65,72 @@ def train_one(config, prepared, epochs, batch_size=BATCH_SIZE):
         metrics=[keras.metrics.MeanAbsoluteError(name="mae")],
     )
 
-    rows = []
-    best_val_loss = float("inf")
-    best_weights = copy.deepcopy(model.get_weights())
-    best_epoch = 0
-    for epoch in range(1, epochs + 1):
-        # Keras shuffling is seeded, but its order is not identical to PyTorch's.
-        model.fit(x_train, y_train, epochs=1, batch_size=batch_size, shuffle=True, verbose=0)
-        train_mse, _ = measure(model, x_train, y_train, batch_size)
-        val_mse, val_mae = measure(model, x_val, y_val, batch_size)
-        rows.append(
-            {"epoch": epoch, "train_loss": train_mse, "val_loss": val_mse, "val_mae": val_mae}
-        )
-        if val_mse < best_val_loss:
-            best_val_loss = val_mse
-            best_epoch = epoch
-            best_weights = copy.deepcopy(model.get_weights())
-        print(
-            f"{config['name']} epoch {epoch:03d}/{epochs} | "
-            f"Train MSE: {train_mse:.4f} | Val MSE: {val_mse:.4f} | "
-            f"Val MAE: {val_mae:.4f}"
-        )
-    model.set_weights(best_weights)
-    return model, pd.DataFrame(rows), best_epoch
+    if checkpoint_dir is None:
+        checkpoint_dir = Path(__file__).resolve().parent / "reports" / "keras" / "checkpoints"
+    checkpoint_dir = Path(checkpoint_dir)
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    slug = config["name"].lower().replace(" ", "_")
+    checkpoint = checkpoint_dir / f"{slug}_seed{seed}.keras"
+
+    callbacks = [
+        keras.callbacks.EarlyStopping(
+            monitor="val_loss", patience=patience, restore_best_weights=True
+        ),
+        keras.callbacks.ModelCheckpoint(
+            filepath=str(checkpoint), monitor="val_loss", save_best_only=True
+        ),
+    ]
+    fit_history = model.fit(
+        x_train,
+        y_train,
+        validation_data=(x_val, y_val),
+        epochs=epochs,
+        batch_size=batch_size,
+        shuffle=True,
+        callbacks=callbacks,
+        verbose=0,
+    )
+    history = pd.DataFrame(
+        {
+            "epoch": np.arange(1, len(fit_history.history["loss"]) + 1),
+            "train_loss": fit_history.history["loss"],
+            "val_loss": fit_history.history["val_loss"],
+            "val_mae": fit_history.history["val_mae"],
+        }
+    )
+    best_epoch = int(history.loc[history["val_loss"].idxmin(), "epoch"])
+    print(
+        f"{config['name']}: best epoch={best_epoch}, "
+        f"val MSE={history['val_loss'].min():.4f}, "
+        f"val MAE={history.loc[history['val_loss'].idxmin(), 'val_mae']:.4f}"
+    )
+    return model, history, best_epoch
 
 
-def main():
+def save_learning_curve(history: pd.DataFrame, destination: Path) -> None:
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.plot(history["epoch"], history["train_loss"], label="Training MSE")
+    ax.plot(history["epoch"], history["val_loss"], label="Validation MSE")
+    best_epoch = int(history.loc[history["val_loss"].idxmin(), "epoch"])
+    ax.axvline(best_epoch, linestyle="--", label=f"Best epoch: {best_epoch}")
+    ax.set(xlabel="Epoch", ylabel="MSE", title="Keras Learning Curve — Main")
+    ax.legend()
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(destination, dpi=200)
+    plt.close(fig)
+
+
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--seed", type=int, default=SEED)
     args = parser.parse_args()
     if args.epochs < 1:
         parser.error("--epochs must be at least 1")
 
-    seed_everything()
-    prepared = prepare_data(make_rentals(), seed=SEED)
+    seed_everything(args.seed)
+    prepared = prepare_data(make_rentals(), seed=args.seed)
     reports = Path(__file__).resolve().parent / "reports" / "keras"
     reports.mkdir(parents=True, exist_ok=True)
 
@@ -95,9 +139,17 @@ def main():
     best_loss = float("inf")
     summary = []
     for config in EXPERIMENTS:
-        model, history, best_epoch = train_one(config, prepared, args.epochs)
+        model, history, best_epoch = train_one(
+            config,
+            prepared,
+            args.epochs,
+            seed=args.seed,
+            checkpoint_dir=reports / "checkpoints",
+        )
         slug = config["name"].lower().replace(" ", "_")
         history.to_csv(reports / f"history_{slug}.csv", index=False)
+        if config["name"] == "Main":
+            save_learning_curve(history, reports / "learning_curves.png")
         best_row = history.loc[history["val_loss"].idxmin()]
         summary.append(
             {
@@ -119,7 +171,7 @@ def main():
     x_test, y_test = arrays(prepared, "test")
     test_mse, test_mae = measure(best_model, x_test, y_test)
     metrics = {
-        "seed": SEED,
+        "seed": args.seed,
         "epochs_per_run": args.epochs,
         "selected_model": best_config["name"],
         "selected_hidden_layers": [best_config["hidden1"], best_config["hidden2"]],

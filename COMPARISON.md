@@ -1,5 +1,31 @@
 # Lab 08 — Same Model, Two Frameworks
 
+## PyTorch vs. Keras: Framework Comparison and Recommendation
+
+**Lakeshore Bike Share — Lab 08**
+
+Our team implemented equivalent PyTorch and Keras neural networks to predict hourly bicycle rentals. Both frameworks used the same prepared data, 64/32 hidden-layer architecture, Adam optimizer, batch size of 32, and 100-epoch budget. We compared three random seeds (42, 43, and 44).
+
+**1. Prediction accuracy:** PyTorch achieved an average test mean absolute error (MAE) of 3.0478 rentals, compared with 3.1927 for Keras. PyTorch performed better on seeds 42 and 43, while Keras was slightly better on seed 44. These results indicate comparable predictive accuracy, with a modest advantage for PyTorch in this experiment.
+
+**2. Training speed:** PyTorch required approximately 9.58 seconds per run, compared with 26.03 seconds for Keras. PyTorch was approximately 2.7 times faster in our measured environment. For a weekly prediction job, this reduces execution time and provides additional flexibility for retraining and troubleshooting.
+
+**3. Implementation and debugging:** PyTorch uses an explicit training loop with `optimizer.zero_grad()`, `loss.backward()`, and `optimizer.step()`, making individual training operations accessible for inspection. Keras uses `model.compile()` and `model.fit()`, together with `EarlyStopping` and `ModelCheckpoint`, providing a higher-level training workflow with less manual optimization code.
+
+### Recommendation
+
+I recommend **PyTorch** for Lakeshore Bike Share. Our small team already has a working PyTorch pipeline with automated tests, reproducible preprocessing, and detailed training logs. Its measured training speed is advantageous for a weekly automated job, while its flexibility provides a practical foundation if the team later adopts pretrained models from Hugging Face.
+
+### Trade-offs
+
+Choosing PyTorch means maintaining more explicit code for training, validation, optimization, and checkpoint management. Keras provides convenient built-in training callbacks that may reduce development and maintenance effort for straightforward models.
+
+### Condition That Would Change the Recommendation
+
+I would reconsider Keras if the team decides to retain only a simple tabular prediction model, abandons plans for Hugging Face integration, and finds that reducing maintenance complexity matters more than the measured runtime difference.
+
+Overall, both frameworks meet the prediction objective, but PyTorch offers the stronger combination of measured performance, operational efficiency, and future flexibility for this scenario.
+
 ## Objective
 
 Implement equivalent feed-forward neural networks in PyTorch and Keras/TensorFlow and compare their behavior under the same data preparation, architectures, learning rates, and epoch budgets. A numerical equivalence test establishes that the networks compute the same function **before training**, after PyTorch parameters are copied into Keras.
@@ -72,3 +98,35 @@ python compare.py
 ## Conclusion (five-epoch evidence only)
 
 The Keras implementation matches the PyTorch network's forward function after weight copying, with maximum observed prediction discrepancy 3×10⁻⁸. Their short-run validation performance is close but not identical. Both frameworks favor the larger 128/32 network. A controlled 100-epoch comparison is required before drawing a conclusion about longer-run convergence.
+
+## Full 100-Epoch Comparison
+
+Both PyTorch and Keras were trained using the same Lakeshore Bike Share dataset, 60/20/20 data split, random seed (42), preprocessing pipeline, neural network architectures, and epoch budget.
+
+Before training, equivalent weights were copied from PyTorch to Keras. Prediction-equivalence tests passed for all four tested hidden-layer configurations, with maximum numerical differences no greater than approximately 0.00000003.
+
+### Validation Results
+
+| Configuration | PyTorch MSE | Keras MSE | PyTorch MAE | Keras MAE |
+|---|---:|---:|---:|---:|
+| Main (64/32, LR 0.001) | 23.2745 | 26.6849 | 3.3687 | 3.6874 |
+| Lower Learning Rate (64/32, LR 0.0005) | 76.8996 | 69.9846 | 5.4230 | 5.2482 |
+| Larger Hidden Layer (128/32, LR 0.001) | 15.3439 | 16.4003 | 2.6079 | 2.6849 |
+
+### Analysis
+
+The larger hidden-layer architecture achieved the lowest validation MSE and MAE in both frameworks.
+
+PyTorch achieved the best overall validation MSE of 15.3439 and MAE of 2.6079, with its best checkpoint occurring at epoch 89. Keras achieved its best validation MSE of 16.4003 and MAE of 2.6849 at epoch 100.
+
+PyTorch performed better in the Main and Larger Hidden Layer experiments, while Keras performed better in the Lower Learning Rate experiment.
+
+Although the networks were numerically equivalent before training, differences in batch ordering, optimizer implementation, and floating-point computation can produce different training trajectories.
+
+### Conclusion
+
+Both PyTorch and Keras successfully implemented the same neural network architecture for bike-rental demand prediction.
+
+PyTorch produced the lowest validation errors in this experiment, but the performance differences were relatively small for the strongest configurations. The results do not establish universal superiority of either framework.
+
+The experiment demonstrates that equivalent architectures can produce comparable, but not necessarily identical, training outcomes across machine learning frameworks.

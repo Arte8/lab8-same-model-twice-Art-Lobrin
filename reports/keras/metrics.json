@@ -1,17 +1,17 @@
 {
   "seed": 42,
-  "epochs_per_run": 100,
+  "epochs_per_run": 5,
   "selected_model": "Larger Hidden Layer",
   "selected_hidden_layers": [
     128,
     32
   ],
   "selected_learning_rate": 0.001,
-  "selected_validation_mse": 16.400261138573338,
+  "selected_validation_mse": 130.03904724121094,
   "test": {
     "neural_network": {
-      "mse": 15.154319967213144,
-      "mae": 2.5959425822397075
+      "mse": 118.25648933737592,
+      "mae": 6.924687896842758
     }
   }
 }
