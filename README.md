@@ -165,12 +165,12 @@ The main configuration was evaluated using random seeds **42, 43, and 44**, with
 
 | Framework | Seed | Best Epoch | Validation MAE | Test MAE | Time (seconds) |
 |---|---:|---:|---:|---:|---:|
-| PyTorch | 42 | 100 | 3.3687 | 3.2212 | 9.69 |
-| Keras | 42 | 100 | 3.6874 | 3.4408 | 26.26 |
-| PyTorch | 43 | 100 | 3.1039 | 2.8687 | 9.17 |
-| Keras | 43 | 100 | 3.1530 | 3.0937 | 24.99 |
-| PyTorch | 44 | 99 | 3.1109 | 3.0534 | 9.87 |
-| Keras | 44 | 100 | 3.1486 | 3.0437 | 26.85 |
+| PyTorch | 42 | 100 | 3.3687 | 3.2212 | 9.42 |
+| Keras | 42 | 100 | 3.0496 | 2.8340 | 26.59 |
+| PyTorch | 43 | 100 | 3.1039 | 2.8687 | 8.80 |
+| Keras | 43 | 100 | 2.9003 | 2.6969 | 24.35 |
+| PyTorch | 44 | 99 | 3.1109 | 3.0534 | 8.70 |
+| Keras | 44 | 100 | 2.9063 | 2.8634 | 24.75 |
 
 ### Revised summary
 Metric	PyTorch	Keras
