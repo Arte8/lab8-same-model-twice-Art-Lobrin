@@ -1,0 +1,7 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+.ipynb_checkpoints/
+*.py[cod]
+# Do not ignore reports/: required outputs must be committed.
