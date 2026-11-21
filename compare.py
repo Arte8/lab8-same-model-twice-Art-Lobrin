@@ -103,7 +103,7 @@ def train_seed_pair(seed: int, epochs: int, reports: Path) -> list[dict]:
     import keras
 
     from bikes_data import make_rentals
-    from keras_model import build_keras_model, copy_torch_weights_to_keras
+    from keras_model import build_keras_model
     from model import BikeRentalNN
     from prepare import BATCH_SIZE, make_loaders, prepare_data
     from train import EXPERIMENTS, run_epoch, set_seed, train_model
@@ -142,7 +142,6 @@ def train_seed_pair(seed: int, epochs: int, reports: Path) -> list[dict]:
     keras.backend.clear_session()
     seed_everything(seed)
     keras_model = build_keras_model(x_train.shape[1], config["hidden1"], config["hidden2"])
-    copy_torch_weights_to_keras(initial_torch, keras_model)
     keras_model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=config["lr"]),
         loss="mse",
@@ -152,7 +151,7 @@ def train_seed_pair(seed: int, epochs: int, reports: Path) -> list[dict]:
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_path = checkpoint_dir / f"main_seed{seed}.keras"
     callbacks = [
-        keras.callbacks.EarlyStopping(monitor="val_loss", patience=20, restore_best_weights=True),
+        keras.callbacks.EarlyStopping(monitor="val_loss", patience=epochs, restore_best_weights=True),
         keras.callbacks.ModelCheckpoint(
             filepath=str(checkpoint_path), monitor="val_loss", save_best_only=True
         ),

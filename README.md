@@ -172,16 +172,16 @@ The main configuration was evaluated using random seeds **42, 43, and 44**, with
 | PyTorch | 44 | 99 | 3.1109 | 3.0534 | 9.87 |
 | Keras | 44 | 100 | 3.1486 | 3.0437 | 26.85 |
 
-### Summary of Results
+### Revised summary
+Metric	PyTorch	Keras
+Mean test MAE	3.0478	2.7981
+Mean training time	8.97 s	25.23 s
+Mean best epoch	99.67	100
+Lower test MAE	0 of 3 seeds	3 of 3 seeds
 
-| Metric | PyTorch | Keras |
-|---|---:|---:|
-| Mean test MAE | 3.0478 | 3.1927 |
-| Mean runtime | 9.58 seconds | 26.03 seconds |
+Keras achieved approximately 8.2% lower mean test MAE, while PyTorch trained approximately 2.81 times faster.
 
-PyTorch achieved a slightly lower mean test MAE and completed training approximately 2.7 times faster than Keras in this experiment.
-
-These results reflect the recorded runs on the local machine and should not be interpreted as a universal performance advantage.
+This changes the interpretation of your experiment. Your README and COMPARISON.md must no longer state that PyTorch achieved better prediction accuracy.
 
 ### Learning Curves
 
