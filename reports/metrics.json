@@ -1,6 +1,6 @@
 {
   "seed": 42,
-  "epochs_per_run": 100,
+  "epochs_per_run": 5,
   "rows": {
     "train": 3600,
     "validation": 1200,
@@ -12,13 +12,13 @@
     32
   ],
   "selected_learning_rate": 0.001,
-  "selected_best_epoch": 89,
-  "selected_validation_mse": 15.343917350769043,
-  "selected_validation_mae": 2.607901719411214,
+  "selected_best_epoch": 5,
+  "selected_validation_mse": 130.72091766357423,
+  "selected_validation_mae": 7.21953660329183,
   "validation_baselines": {
     "Neural Network": {
-      "mse": 23.274455922444663,
-      "mae": 3.368730894724528
+      "mse": 154.92782450358072,
+      "mae": 7.8897866503397625
     },
     "Linear Regression": {
       "mse": 189.090790289319,
@@ -31,8 +31,8 @@
   },
   "test": {
     "neural_network": {
-      "mse": 13.615966898600261,
-      "mae": 2.4903228378295896
+      "mse": 118.22151067097981,
+      "mae": 6.704972750345866
     },
     "training_mean": {
       "mse": 199.8228074845679,
