@@ -151,7 +151,9 @@ def train_seed_pair(seed: int, epochs: int, reports: Path) -> list[dict]:
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_path = checkpoint_dir / f"main_seed{seed}.keras"
     callbacks = [
-        keras.callbacks.EarlyStopping(monitor="val_loss", patience=epochs, restore_best_weights=True),
+        keras.callbacks.EarlyStopping(
+            monitor="val_loss", patience=epochs, restore_best_weights=True
+        ),
         keras.callbacks.ModelCheckpoint(
             filepath=str(checkpoint_path), monitor="val_loss", save_best_only=True
         ),

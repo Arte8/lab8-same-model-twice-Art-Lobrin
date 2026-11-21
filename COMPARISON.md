@@ -14,7 +14,11 @@ Our team implemented equivalent PyTorch and Keras neural networks to predict hou
 
 ## Recommendation
 
-I recommend **PyTorch** for Lakeshore Bike Share. Our small team already has a functional PyTorch pipeline with reproducible preprocessing, automated tests, and established reporting. Its measured training efficiency supports the planned weekly job, while its flexibility would be valuable if the team later integrates pretrained models from Hugging Face.
+I recommend **PyTorch** for Lakeshore Bike Share. Our small team already has a functional PyTorch pipeline with reproducible preprocessing, automated tests, and established reporting. Its measured training efficiency supports the planned weekly job, while its flexibility would be valuable if the team later integrates pretrained models from Hugging Face. Keras achieved better test MAE on all three seeds.
+
+PyTorch trained approximately 2.81 times faster.
+PyTorch remains a reasonable choice for an existing weekly production pipeline and potential Hugging Face integration.
+Keras may be preferable if predictive accuracy becomes the primary selection criterion.
 
 ## Trade-offs
 
