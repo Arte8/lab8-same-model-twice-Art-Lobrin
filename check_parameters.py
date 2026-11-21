@@ -1,4 +1,3 @@
-
 """Check parameter-count equivalence between frameworks."""
 
 from keras_model import build_keras_model
@@ -25,11 +24,6 @@ for hidden1, hidden2 in [(16, 8), (32, 16), (64, 32), (128, 32)]:
     torch_count = count_torch_parameters(torch_model)
     keras_count = keras_model.count_params()
 
-    assert torch_count == keras_count, (
-        f"Mismatch: {torch_count} != {keras_count}"
-    )
+    assert torch_count == keras_count, f"Mismatch: {torch_count} != {keras_count}"
 
-    print(
-        f"{hidden1}/{hidden2}: "
-        f"PyTorch={torch_count}, Keras={keras_count} MATCH"
-    )
+    print(f"{hidden1}/{hidden2}: PyTorch={torch_count}, Keras={keras_count} MATCH")

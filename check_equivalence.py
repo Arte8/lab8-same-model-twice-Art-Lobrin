@@ -1,4 +1,3 @@
-
 """Verify PyTorch and Keras prediction equivalence."""
 
 import numpy as np
@@ -42,15 +41,9 @@ for hidden1, hidden2 in [
     torch_model.eval()
 
     with torch.no_grad():
-        torch_predictions = (
-            torch_model(torch.from_numpy(X))
-            .cpu()
-            .numpy()
-        )
+        torch_predictions = torch_model(torch.from_numpy(X)).cpu().numpy()
 
-    keras_predictions = (
-        keras_model(X, training=False).numpy()
-    )
+    keras_predictions = keras_model(X, training=False).numpy()
 
     np.testing.assert_allclose(
         torch_predictions,
@@ -59,11 +52,6 @@ for hidden1, hidden2 in [
         atol=1e-5,
     )
 
-    max_difference = np.max(
-        np.abs(torch_predictions - keras_predictions)
-    )
+    max_difference = np.max(np.abs(torch_predictions - keras_predictions))
 
-    print(
-        f"{hidden1}/{hidden2}: "
-        f"PASS | Max difference: {max_difference:.8f}"
-    )
+    print(f"{hidden1}/{hidden2}: PASS | Max difference: {max_difference:.8f}")

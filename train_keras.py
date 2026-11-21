@@ -62,15 +62,18 @@ def train_one(config, prepared, epochs, batch_size=BATCH_SIZE):
         model.fit(x_train, y_train, epochs=1, batch_size=batch_size, shuffle=True, verbose=0)
         train_mse, _ = measure(model, x_train, y_train, batch_size)
         val_mse, val_mae = measure(model, x_val, y_val, batch_size)
-        rows.append({"epoch": epoch, "train_loss": train_mse,
-                     "val_loss": val_mse, "val_mae": val_mae})
+        rows.append(
+            {"epoch": epoch, "train_loss": train_mse, "val_loss": val_mse, "val_mae": val_mae}
+        )
         if val_mse < best_val_loss:
             best_val_loss = val_mse
             best_epoch = epoch
             best_weights = copy.deepcopy(model.get_weights())
-        print(f"{config['name']} epoch {epoch:03d}/{epochs} | "
-              f"Train MSE: {train_mse:.4f} | Val MSE: {val_mse:.4f} | "
-              f"Val MAE: {val_mae:.4f}")
+        print(
+            f"{config['name']} epoch {epoch:03d}/{epochs} | "
+            f"Train MSE: {train_mse:.4f} | Val MSE: {val_mse:.4f} | "
+            f"Val MAE: {val_mae:.4f}"
+        )
     model.set_weights(best_weights)
     return model, pd.DataFrame(rows), best_epoch
 
@@ -96,11 +99,16 @@ def main():
         slug = config["name"].lower().replace(" ", "_")
         history.to_csv(reports / f"history_{slug}.csv", index=False)
         best_row = history.loc[history["val_loss"].idxmin()]
-        summary.append({"Run": config["name"], "Hidden Layers":
-                        f"{config['hidden1']}, {config['hidden2']}",
-                        "Learning Rate": config["lr"], "Best Epoch": best_epoch,
-                        "Validation Loss": float(best_row["val_loss"]),
-                        "Validation MAE": float(best_row["val_mae"])})
+        summary.append(
+            {
+                "Run": config["name"],
+                "Hidden Layers": f"{config['hidden1']}, {config['hidden2']}",
+                "Learning Rate": config["lr"],
+                "Best Epoch": best_epoch,
+                "Validation Loss": float(best_row["val_loss"]),
+                "Validation MAE": float(best_row["val_mae"]),
+            }
+        )
         if float(best_row["val_loss"]) < best_loss:
             best_loss = float(best_row["val_loss"])
             best_model = model
@@ -110,12 +118,15 @@ def main():
     assert best_model is not None and best_config is not None
     x_test, y_test = arrays(prepared, "test")
     test_mse, test_mae = measure(best_model, x_test, y_test)
-    metrics = {"seed": SEED, "epochs_per_run": args.epochs,
-               "selected_model": best_config["name"],
-               "selected_hidden_layers": [best_config["hidden1"], best_config["hidden2"]],
-               "selected_learning_rate": best_config["lr"],
-               "selected_validation_mse": best_loss,
-               "test": {"neural_network": {"mse": test_mse, "mae": test_mae}}}
+    metrics = {
+        "seed": SEED,
+        "epochs_per_run": args.epochs,
+        "selected_model": best_config["name"],
+        "selected_hidden_layers": [best_config["hidden1"], best_config["hidden2"]],
+        "selected_learning_rate": best_config["lr"],
+        "selected_validation_mse": best_loss,
+        "test": {"neural_network": {"mse": test_mse, "mae": test_mae}},
+    }
     (reports / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
     print(pd.DataFrame(summary).round(4).to_string(index=False))
     print(f"Keras held-out test: MSE={test_mse:.4f}, MAE={test_mae:.4f}")

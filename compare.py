@@ -12,12 +12,21 @@ from pathlib import Path
 
 import pandas as pd
 
-REQUIRED = ["Run", "Hidden Layers", "Learning Rate", "Best Epoch", "Validation Loss", "Validation MAE"]
+REQUIRED = [
+    "Run",
+    "Hidden Layers",
+    "Learning Rate",
+    "Best Epoch",
+    "Validation Loss",
+    "Validation MAE",
+]
 
 
 def read_experiments(path: Path, framework: str) -> pd.DataFrame:
     if not path.is_file():
-        raise FileNotFoundError(f"Missing {framework} results: {path}. Run its training script first.")
+        raise FileNotFoundError(
+            f"Missing {framework} results: {path}. Run its training script first."
+        )
     frame = pd.read_csv(path)
     missing = set(REQUIRED) - set(frame.columns)
     if missing:
@@ -65,17 +74,19 @@ def compare_reports(reports: Path) -> pd.DataFrame:
         if not matches.all():
             raise ValueError(f"Experiment settings differ for {column}.")
 
-    result = pd.DataFrame({
-        "Run": combined["Run"],
-        "Hidden Layers": combined["Hidden Layers_PyTorch"],
-        "Learning Rate": combined["Learning Rate_PyTorch"],
-        "PyTorch Best Epoch": combined["Best Epoch_PyTorch"],
-        "Keras Best Epoch": combined["Best Epoch_Keras"],
-        "PyTorch Validation MSE": combined["Validation Loss_PyTorch"],
-        "Keras Validation MSE": combined["Validation Loss_Keras"],
-        "PyTorch Validation MAE": combined["Validation MAE_PyTorch"],
-        "Keras Validation MAE": combined["Validation MAE_Keras"],
-    })
+    result = pd.DataFrame(
+        {
+            "Run": combined["Run"],
+            "Hidden Layers": combined["Hidden Layers_PyTorch"],
+            "Learning Rate": combined["Learning Rate_PyTorch"],
+            "PyTorch Best Epoch": combined["Best Epoch_PyTorch"],
+            "Keras Best Epoch": combined["Best Epoch_Keras"],
+            "PyTorch Validation MSE": combined["Validation Loss_PyTorch"],
+            "Keras Validation MSE": combined["Validation Loss_Keras"],
+            "PyTorch Validation MAE": combined["Validation MAE_PyTorch"],
+            "Keras Validation MAE": combined["Validation MAE_Keras"],
+        }
+    )
     result["MSE Difference (Keras - PyTorch)"] = (
         result["Keras Validation MSE"] - result["PyTorch Validation MSE"]
     )
