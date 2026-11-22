@@ -104,20 +104,7 @@ The complete Pytest suite most recently reported **44 passed**. Tests cover dete
 
 Core files: `bikes_data.py` (instructor-provided and unchanged), `prepare.py` (split, preprocessing, datasets, loaders), `model.py` (network), and `train.py` (training, baselines, experiments, plots, and final test evaluation). Key outputs include `reports/history.csv`, `reports/experiments.csv`, `reports/learning_curves.png`, and `reports/metrics.json`.
 ****
-## LAB 8-PyTorch vs. Keras Comparison
 
-conda activate lab8-lbs
-
-python -m pytest -q
-python -m ruff check .
-python -m ruff format --check .
-
-python check_validation_equivalence.py
-
-python train.py --epochs 100
-python train_keras.py --epochs 100
-
-python compare.py --multi-seed --epochs 100
 
 ## Lab 08: PyTorch vs. Keras/TensorFlow
 
