@@ -1,4 +1,107 @@
 # Lakeshore Bike Demand prepared by Artemio Lobrin
+## Lab 08: PyTorch vs. Keras/TensorFlow
+
+This extension reuses the Lab 07 data generator, split, and train-only preprocessing. It adds `keras_model.py` (equivalent architecture and PyTorch-to-Keras weight copying), `train_keras.py` (Keras training and reports), `compare.py` (validation-metric comparison), and the tests in `tests/test_keras_parity.py` and `tests/test_compare.py`.
+
+In Anaconda Prompt from the repository root:
+
+```cmd
+git clone https://github.com/Arte8/lab8-same-model-twice-Art-Lobrin/tree/main
+cd lab8-same-model-twice
+conda activate lab8-lbs
+python -m pytest -q
+python -m ruff check .
+python -m ruff format --check .
+python train.py --epochs 5
+python train_keras.py --epochs 5
+python compare.py
+python train.py --epochs 100
+python train_keras.py --epochs 100
+python check_validation_equivalence.py
+python compare.py --multi-seed --epochs 100
+```
+
+For the full experiment, run both training commands again with `--epochs 100`, then rerun `python compare.py`. Both frameworks must use the same epoch budget; `compare.py` rejects mismatches. **Back up previous reports first** because the scripts overwrite CSV/JSON results.
+
+PyTorch reports are under `reports/`; Keras reports are under `reports/keras/`; the combined comparison is `reports/framework_comparison.csv`. See [COMPARISON.md](COMPARISON.md) for the experiment design, recorded five-epoch results, limitations, and full-run instructions.
+
+The Keras/TensorFlow dependencies must be present in the submitted `environment.yml` and `requirements.txt`. Ensure `lab8-lbs` can be recreated from those files before submission.
+
+## Lab 08 — PyTorch vs. Keras Comparison
+
+### Generated Reports
+
+The project generates and stores the following results:
+
+| File | Description |
+|---|---|
+| `reports/comparison.csv` | Three-seed comparison of PyTorch and Keras |
+| `reports/learning_curves.png` | PyTorch training and validation learning curves |
+| `reports/keras/learning_curves.png` | Keras training and validation learning curves |
+
+### Three-Seed Comparison Results
+
+Both frameworks were trained using the same dataset preparation, network architecture, and experimental configurations.
+
+The main configuration was evaluated using random seeds **42, 43, and 44**, with a maximum of **100 epochs** per run.
+
+| Framework | Seed | Best Epoch | Validation MAE | Test MAE | Time (seconds) |
+|---|---:|---:|---:|---:|---:|
+| PyTorch | 42 | 100 | 3.3687 | 3.2212 | 9.42 |
+| Keras | 42 | 100 | 3.0496 | 2.8340 | 26.59 |
+| PyTorch | 43 | 100 | 3.1039 | 2.8687 | 8.80 |
+| Keras | 43 | 100 | 2.9003 | 2.6969 | 24.35 |
+| PyTorch | 44 | 99 | 3.1109 | 3.0534 | 8.70 |
+| Keras | 44 | 100 | 2.9063 | 2.8634 | 24.75 |
+
+### Revised summary
+Metric	PyTorch	Keras
+Mean test MAE	3.0478	2.7981
+Mean training time	8.97 s	25.23 s
+Mean best epoch	99.67	100
+Lower test MAE	0 of 3 seeds	3 of 3 seeds
+
+Keras achieved approximately 8.2% lower mean test MAE, while PyTorch trained approximately 2.81 times faster.
+
+This changes the interpretation of your experiment. Your README and COMPARISON.md must no longer state that PyTorch achieved better prediction accuracy.
+
+### Learning Curves
+
+**PyTorch learning curves**
+
+![PyTorch learning curves](reports/learning_curves.png)
+
+**Keras learning curves**
+
+![Keras learning curves](reports/keras/learning_curves.png)
+
+### Run the Comparison
+
+```bash
+python check_validation_equivalence.py
+python compare.py --multi-seed --epochs 100
+```
+
+The comparison results are saved to `reports/comparison.csv`.
+
+### Automated Testing and Code Quality
+
+The latest verified test run completed successfully:
+
+```text
+44 passed, 6 warnings in 14.64s
+```
+
+Run the tests using:
+
+```bash
+python -m pytest -q
+```
+
+Check code quality using:
+
+```bash
+python -m ruff check .
 
 **Lab 7 — Capstone Preparation | Humber College AIGC5005**
 
@@ -104,122 +207,9 @@ The complete Pytest suite most recently reported **44 passed**. Tests cover dete
 
 Core files: `bikes_data.py` (instructor-provided and unchanged), `prepare.py` (split, preprocessing, datasets, loaders), `model.py` (network), and `train.py` (training, baselines, experiments, plots, and final test evaluation). Key outputs include `reports/history.csv`, `reports/experiments.csv`, `reports/learning_curves.png`, and `reports/metrics.json`.
 ****
-## LAB 8-PyTorch vs. Keras Comparison
 
-conda activate lab8-lbs
 
-python -m pytest -q
-python -m ruff check .
-python -m ruff format --check .
 
-python check_validation_equivalence.py
-
-python train.py --epochs 100
-python train_keras.py --epochs 100
-
-python compare.py --multi-seed --epochs 100
-
-## Lab 08: PyTorch vs. Keras/TensorFlow
-
-This extension reuses the Lab 07 data generator, split, and train-only preprocessing. It adds `keras_model.py` (equivalent architecture and PyTorch-to-Keras weight copying), `train_keras.py` (Keras training and reports), `compare.py` (validation-metric comparison), and the tests in `tests/test_keras_parity.py` and `tests/test_compare.py`.
-
-In Anaconda Prompt from the repository root:
-
-```cmd
-conda activate lab8-lbs
-python -m pytest -q
-python -m ruff check .
-python -m ruff format --check .
-python train.py --epochs 5
-python train_keras.py --epochs 5
-python compare.py
-python train.py --epochs 100
-python train_keras.py --epochs 100
-python check_validation_equivalence.py
-python compare.py --multi-seed --epochs 100
-```
-
-For the full experiment, run both training commands again with `--epochs 100`, then rerun `python compare.py`. Both frameworks must use the same epoch budget; `compare.py` rejects mismatches. **Back up previous reports first** because the scripts overwrite CSV/JSON results.
-
-PyTorch reports are under `reports/`; Keras reports are under `reports/keras/`; the combined comparison is `reports/framework_comparison.csv`. See [COMPARISON.md](COMPARISON.md) for the experiment design, recorded five-epoch results, limitations, and full-run instructions.
-
-The Keras/TensorFlow dependencies must be present in the submitted `environment.yml` and `requirements.txt`. Ensure `lab8-lbs` can be recreated from those files before submission.
-
-## Lab 08 — PyTorch vs. Keras Comparison
-
-### Generated Reports
-
-The project generates and stores the following results:
-
-| File | Description |
-|---|---|
-| `reports/comparison.csv` | Three-seed comparison of PyTorch and Keras |
-| `reports/learning_curves.png` | PyTorch training and validation learning curves |
-| `reports/keras/learning_curves.png` | Keras training and validation learning curves |
-
-### Three-Seed Comparison Results
-
-Both frameworks were trained using the same dataset preparation, network architecture, and experimental configurations.
-
-The main configuration was evaluated using random seeds **42, 43, and 44**, with a maximum of **100 epochs** per run.
-
-| Framework | Seed | Best Epoch | Validation MAE | Test MAE | Time (seconds) |
-|---|---:|---:|---:|---:|---:|
-| PyTorch | 42 | 100 | 3.3687 | 3.2212 | 9.69 |
-| Keras | 42 | 100 | 3.6874 | 3.4408 | 26.26 |
-| PyTorch | 43 | 100 | 3.1039 | 2.8687 | 9.17 |
-| Keras | 43 | 100 | 3.1530 | 3.0937 | 24.99 |
-| PyTorch | 44 | 99 | 3.1109 | 3.0534 | 9.87 |
-| Keras | 44 | 100 | 3.1486 | 3.0437 | 26.85 |
-
-### Revised summary
-Metric	PyTorch	Keras
-Mean test MAE	3.0478	2.7981
-Mean training time	8.97 s	25.23 s
-Mean best epoch	99.67	100
-Lower test MAE	0 of 3 seeds	3 of 3 seeds
-
-Keras achieved approximately 8.2% lower mean test MAE, while PyTorch trained approximately 2.81 times faster.
-
-This changes the interpretation of your experiment. Your README and COMPARISON.md must no longer state that PyTorch achieved better prediction accuracy.
-
-### Learning Curves
-
-**PyTorch learning curves**
-
-![PyTorch learning curves](reports/learning_curves.png)
-
-**Keras learning curves**
-
-![Keras learning curves](reports/keras/learning_curves.png)
-
-### Run the Comparison
-
-```bash
-python check_validation_equivalence.py
-python compare.py --multi-seed --epochs 100
-```
-
-The comparison results are saved to `reports/comparison.csv`.
-
-### Automated Testing and Code Quality
-
-The latest verified test run completed successfully:
-
-```text
-44 passed, 6 warnings in 14.64s
-```
-
-Run the tests using:
-
-```bash
-python -m pytest -q
-```
-
-Check code quality using:
-
-```bash
-python -m ruff check .
 python -m ruff format --check .
 ```
 
