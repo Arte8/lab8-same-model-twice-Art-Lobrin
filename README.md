@@ -6,6 +6,7 @@ This extension reuses the Lab 07 data generator, split, and train-only preproces
 In Anaconda Prompt from the repository root:
 
 ```cmd
+git clone
 conda activate lab8-lbs
 python -m pytest -q
 python -m ruff check .
