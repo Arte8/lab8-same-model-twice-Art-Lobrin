@@ -8,7 +8,7 @@ Our team implemented equivalent PyTorch and Keras neural networks to predict hou
 
 **1. Prediction accuracy:** PyTorch achieved an average test mean absolute error (MAE) of **3.0478 rentals**, compared with **3.1927 rentals** for Keras. PyTorch performed better on seeds 42 and 43, while Keras performed slightly better on seed 44. Both frameworks demonstrated comparable predictive performance, with PyTorch achieving a modest advantage across the three runs.
 
-**2. Training efficiency:** PyTorch required approximately **9.58 seconds** per run, compared with **26.03 seconds** for Keras. PyTorch was approximately **2.7 times faster** in our measured environment. For a weekly automated prediction job, this provides greater flexibility for retraining and troubleshooting. These results are specific to our experimental setup.
+**2. Training efficiency:** PyTorch required approximately **8.88 seconds** per run, compared with **25.30 seconds** for Keras. PyTorch was approximately **2.7 times faster** in our measured environment. For a weekly automated prediction job, this provides greater flexibility for retraining and troubleshooting. These results are specific to our experimental setup.
 
 **3. Implementation and maintainability:** PyTorch provides explicit control over the training loop, including gradient calculations, optimizer updates, and validation procedures. This flexibility supports detailed debugging and future model customization. Keras simplifies training through `compile()`, `fit()`, `EarlyStopping`, and `ModelCheckpoint`, reducing the amount of custom training code.
 
