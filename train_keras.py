@@ -36,9 +36,19 @@ def arrays(prepared, split: str):
 
 
 def measure(model, x, y, batch_size=BATCH_SIZE):
-    predictions = model.predict(x, batch_size=batch_size, verbose=0)
-    errors = predictions.astype(np.float64) - y.astype(np.float64)
-    return float(np.mean(errors**2)), float(np.mean(np.abs(errors)))
+    predictions = np.asarray(model.predict(x, batch_size=batch_size, verbose=0)).reshape(-1)
+
+    targets = np.asarray(y).reshape(-1)
+
+    if predictions.shape != targets.shape:
+        raise ValueError("Prediction and target shapes do not match.")
+
+    errors = predictions.astype(np.float64) - targets.astype(np.float64)
+
+    mse = float(np.mean(errors**2))
+    mae = float(np.mean(np.abs(errors)))
+
+    return mse, mae
 
 
 def train_one(
@@ -48,21 +58,18 @@ def train_one(
     batch_size=BATCH_SIZE,
     seed=SEED,
     checkpoint_dir=None,
-    patience=none,
-
+    patience=None,
 ):
     """Fit once with callbacks; return best-weight model, history, best epoch."""
 
     if patience is None:
         patience = epochs
-        
+
     seed_everything(seed)
     x_train, y_train = arrays(prepared, "train")
     x_val, y_val = arrays(prepared, "val")
 
-    model = build_keras_model(
-    x_train.shape[1], config["hidden1"], config["hidden2"]
-)
+    model = build_keras_model(x_train.shape[1], config["hidden1"], config["hidden2"])
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=config["lr"]),
         loss="mse",
