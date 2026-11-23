@@ -6,19 +6,32 @@ This extension reuses the Lab 07 data generator, split, and train-only preproces
 In Anaconda Prompt from the repository root:
 
 ```cmd
-git clone https://github.com/Arte8/lab8-same-model-twice-Art-Lobrin/tree/main
-cd lab8-same-model-twice
+
+:: Clone the Lab 08 repository
+git clone https://github.com/Arte8/lab8-same-model-twice-Art-Lobrin.git
+cd lab8-same-model-twice-Art-Lobrin
+
+:: Create the Conda environment (first setup only)
+conda env create -f environment.yml
 conda activate lab8-lbs
+
+:: Run automated tests and code-quality checks
 python -m pytest -q
 python -m ruff check .
 python -m ruff format --check .
-python train.py --epochs 5
-python train_keras.py --epochs 5
-python compare.py
-python train.py --epochs 100
-python train_keras.py --epochs 100
+
+:: Verify PyTorch/Keras weight-copy equivalence
 python check_validation_equivalence.py
+
+:: Run the full 100-epoch PyTorch experiments
+python train.py --epochs 100
+
+:: Run the full 100-epoch Keras experiments
+python train_keras.py --epochs 100
+
+:: Generate the three-seed framework comparison
 python compare.py --multi-seed --epochs 100
+
 ```
 
 For the full experiment, run both training commands again with `--epochs 100`, then rerun `python compare.py`. Both frameworks must use the same epoch budget; `compare.py` rejects mismatches. **Back up previous reports first** because the scripts overwrite CSV/JSON results.
