@@ -17,8 +17,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from bikes_data import make_rentals
-from keras_model import build_keras_model, copy_torch_weights_to_keras
-from model import BikeRentalNN
+from keras_model import build_keras_model
 from prepare import BATCH_SIZE, SEED, prepare_data
 from train import EXPERIMENTS
 
@@ -49,16 +48,16 @@ def train_one(
     batch_size=BATCH_SIZE,
     seed=SEED,
     checkpoint_dir=None,
-    patience=20,
+    patience=none,
 ):
     """Fit once with callbacks; return best-weight model, history, best epoch."""
     seed_everything(seed)
     x_train, y_train = arrays(prepared, "train")
     x_val, y_val = arrays(prepared, "val")
 
-    torch_model = BikeRentalNN(x_train.shape[1], config["hidden1"], config["hidden2"])
-    model = build_keras_model(x_train.shape[1], config["hidden1"], config["hidden2"])
-    copy_torch_weights_to_keras(torch_model, model)
+    model = build_keras_model(
+    x_train.shape[1], config["hidden1"], config["hidden2"]
+)
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=config["lr"]),
         loss="mse",
