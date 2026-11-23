@@ -49,8 +49,13 @@ def train_one(
     seed=SEED,
     checkpoint_dir=None,
     patience=none,
+
 ):
     """Fit once with callbacks; return best-weight model, history, best epoch."""
+
+    if patience is None:
+        patience = epochs
+        
     seed_everything(seed)
     x_train, y_train = arrays(prepared, "train")
     x_val, y_val = arrays(prepared, "val")
